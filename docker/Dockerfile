@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y cmake libeigen3-dev libpcl-dev \
     libatlas-base-dev libgoogle-glog-dev libsuitesparse-dev libglew-dev wget
 
 # Install matplotlib
-RUN apt-get update && apt-get install -y python-pip python-tk && pip install matplotlib
+RUN apt-get update && apt-get install -y python-pip python-tk vim && pip install matplotlib
 
 # Install ceres-solver
 WORKDIR /home/
@@ -26,6 +26,9 @@ RUN wget https://github.com/Livox-SDK/livox_ros_driver/archive/refs/tags/v2.6.0.
 RUN tar zxf v2.6.0.tar.gz && rm -rf v2.6.0.tar.gz
 
 RUN /bin/bash -c '. /opt/ros/melodic/setup.bash; catkin_init_workspace; cd .. && catkin_make'
+
+RUN echo "source /opt/ros/melodic/setup.bash" >> ~/.bashrc && \
+    echo "source /home/catkin_ws/devel/setup.bash" >> ~/.bashrc
 
 # Load ROS environment at each run
 COPY ./ros_entrypoint.sh /

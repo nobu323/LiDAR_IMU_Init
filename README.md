@@ -1,3 +1,12 @@
+## LiDAR-inertial InitializationをWSK＋Docker環境で動かすリポジトリ
+### 使い方
+> cd docker  
+> docker compose up -d  
+> docker exec -it li-calib bash
+> cd /home/catkin_ws && catkin_make
+> source ~/.bashrc
+> roslaunch lidar_imu_init velodyne.launch
+
 ## Robust Real-time LiDAR-inertial Initialization
 
 **LI-Init** is a robust, real-time initialization method for LiDAR-inertial system. The proposed method calibrates the temporal offset and extrinsic parameter between LiDARs and IMUs, and also the gravity vector and IMU bias. Our method does not require any target or extra sensor, specific structured environment, prior environment point map or initial values of extrinsic and time offset. Our package address following key issues:

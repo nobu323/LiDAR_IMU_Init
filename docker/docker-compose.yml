@@ -1,0 +1,42 @@
+services:
+  li-calib:
+    build:
+      context: .                  #Dockerfileの在りかを指定
+      network: host
+      dockerfile: Dockerfile
+    image: li_init:1.0 # dockerにイメージ名:タグ名を付ける
+    container_name: li-calib      # コンテナ名を付ける
+    hostname: docker             # ホスト名を付ける。内部のシェルを起動した際のプロンプトに影響する。
+    stdin_open: true             # docker compose upでコンテナ立ち上げっぱなしにする用
+    tty: true                    # docker compose upでコンテナ立ち上げっぱなしにする用
+    entrypoint: /ros_entrypoint.sh   # コンテナ起動時に最初に実行されるスクリプトの設定
+    ipc: host                    # コンテナとホストとのDDSの通信のためにホストとIPCを共有
+    privileged: true             # ホストのシリアルポートをコンテナに持ってくる
+    network_mode: "host"         # ネットワーク関連のアプリを、コンテナ内でもホストと同じ動きが出来るようにする。
+    shm_size: '1gb'
+    command:  bash
+    runtime: nvidia
+    group_add: 
+      - plugdev
+      - video
+    extra_hosts:
+      - "docker:127.0.0.1"       # ホスト名とlocalhostを対応付けておく。sudoのエラーを消す用。
+    volumes:                                                   # ホストにあるディレクトリをコンテナ内部から読み書き出来るようマウントする
+      - /dev:/dev                                              # USB-シリアルデバイス等をコンテナ内から操作可能にする
+      - ../../SLAM/rosbag:/rosbag                              # rosbagの在りか
+      - /tmp/.X11-unix:/tmp/.X11-unix                          # 画面出力用
+      - /mnt/wslg:/mnt/wslg                                    # WSL画面出力用
+      - /usr/lib/wsl:/usr/lib/wsl                              # WSL画面出力用
+      - ../:/home/catkin_ws/src/LiDAR_IMU_Init
+    environment:                    # コンテナ内で使う環境変数の設定
+      # ユーザー設定関連
+      - DISPLAY                     # X11用の設定。値の定義はホスト環境のもの、Macだけrun.shにある。
+      - INPUT_GROUP_ID              # inputグループをdockerコンテナ内に共有する用の設定。値の定義はdocker/internal/docker_util.shにある。
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=all
+      - XDG_RUNTIME_DIR=/mnt/wslg/runtime-dir/
+      - LD_LIBRARY_PATH=/usr/lib/wsl/lib
+    devices:
+      - /dev/dri:/dev/dri           # WSL環境でGUI表示
+      - /dev/dxg:/dev/dxg           # WSL環境でGUI表示 
+      - ${XDG_RUNTIME_DIR}:${XDG_RUNTIME_DIR}
